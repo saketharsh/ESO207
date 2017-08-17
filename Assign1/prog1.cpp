@@ -6,13 +6,10 @@ typedef complex < float > complexnum; // Saving time using the typedef
 typedef vector < complexnum >  dcomplex; // To construct a vector of complex numbers
 double  pi=  3.141592653589793*2;
 
-
 dcomplex FFTfunc( dcomplex ax, int num, bool work  ) {
 	if ( num ==1) 
 		return  ax;
-
-	dcomplex evenarray, oddarray, finalans(num);
-
+	dcomplex evenarray, oddarray, finalans(num);  //Array for even degree and odd degree and the final answer
 	for ( int i =0; i < num; i ++) {
 		if ( i%2==0)
 			evenarray.push_back(ax[i]);
@@ -21,7 +18,7 @@ dcomplex FFTfunc( dcomplex ax, int num, bool work  ) {
   	complexnum iota = {0,1};
   	float alpha = pi/num;
   	alpha = work?-alpha:alpha;
-  	complexnum omega = exp(iota*alpha);
+  	complexnum omega = exp(iota*alpha); // The primitive complex number that is used to generate all other complex numbers
   	complexnum theta= {1,0} ;
   	dcomplex  Y_even= FFTfunc(evenarray, num/2, work);
   	dcomplex Y_odd = FFTfunc(oddarray, num/2, work);
@@ -47,13 +44,11 @@ int main() {
 	}
 	dcomplex ansarray = FFTfunc(polynomial, degree_bound, work);
 	if ( work) {
-		for ( int i =0;i<ansarray.size(); i++) {
+		for ( int i =0;i<ansarray.size(); i++)
 			ansarray[i]= ansarray[i]/float(degree_bound);	
-		}
 	}
 	cout<<ansarray.size()<<" ";
-	for ( int i =0;i< ansarray.size(); i++) {
-		cout<<ansarray[i].real()<<" "<<ansarray[i].imag()<<" ";
-	}	 
+	for ( int i =0;i< ansarray.size(); i++) 
+		cout<<ansarray[i].real()<<" "<<ansarray[i].imag()<<" ";	 
 	return 0;
 }
