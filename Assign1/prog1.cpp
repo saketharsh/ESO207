@@ -1,10 +1,11 @@
 #include <bits/stdc++.h>
 #include <complex>
 #include <cmath>
+#include <stdio.h>
 using namespace std;
-typedef complex < float > complexnum; // Saving time using the typedef 
+typedef complex < double  > complexnum; // Saving time using the typedef 
 typedef vector < complexnum >  dcomplex; // To construct a vector of complex numbers
-double  pi=  3.141592653589793*2;
+double  twopi=  2.0*acos(-1);
 
 dcomplex FFTfunc( dcomplex ax, int num, bool work  ) {
 	if ( num ==1) 
@@ -16,7 +17,7 @@ dcomplex FFTfunc( dcomplex ax, int num, bool work  ) {
 		else oddarray.push_back(ax[i]);
 	}	
   	complexnum iota = {0,1};
-  	float alpha = pi/num;
+  	double alpha = twopi/(double)num;
   	alpha = work?-alpha:alpha;
   	complexnum omega = exp(iota*alpha); // The primitive complex number that is used to generate all other complex numbers
   	complexnum theta= {1,0} ;
@@ -31,24 +32,33 @@ dcomplex FFTfunc( dcomplex ax, int num, bool work  ) {
 }
 
 int main() {
-	bool work;
-	int degree_bound;
-	cin>>work;
-	cin>>degree_bound;
-	dcomplex polynomial;
-	float r, im;
-	for ( int i =0;i< degree_bound; i++) {
-		cin>>r>>im;
-		complexnum p = {r, im};
-		polynomial.push_back(p);
+	int tcases;
+	cin>>tcases;
+	while (tcases--) {
+		bool work;
+		double degree_bound;
+		cin>>work;
+		cin>>degree_bound;
+		dcomplex polynomial;
+		double r, im;
+		for ( int i =0;i< degree_bound; i++) {
+			cin>>r>>im;
+			complexnum p = {r, im};
+			polynomial.push_back(p);
+		}
+		dcomplex ansarray = FFTfunc(polynomial, degree_bound, work);
+		if ( work) {
+			double inv_de= 1/degree_bound;
+			for ( int i =0;i<ansarray.size(); i++) {
+
+				double real = ansarray[i].real(), comp = ansarray[i].imag();
+				real= real/(double)degree_bound;
+				comp = comp/(double)degree_bound;
+				ansarray[i] = {real,comp};	
+			}
+		}
+		for ( int i =0;i< ansarray.size(); i++) 
+			printf("%.6f %.6f\n",ansarray[i].real(), ansarray[i].imag());
 	}
-	dcomplex ansarray = FFTfunc(polynomial, degree_bound, work);
-	if ( work) {
-		for ( int i =0;i<ansarray.size(); i++)
-			ansarray[i]= ansarray[i]/float(degree_bound);	
-	}
-	cout<<ansarray.size()<<" ";
-	for ( int i =0;i< ansarray.size(); i++) 
-		cout<<ansarray[i].real()<<" "<<ansarray[i].imag()<<" ";	 
 	return 0;
 }
