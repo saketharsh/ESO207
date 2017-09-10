@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -5,7 +6,7 @@
 #include <cctype>
 using namespace std;
  
-bool error;
+bool error;  // To enocounter if there is an error or not 
  
 // returns true if op2 has lower or equal priority than op1, false otherwise
 bool hasLowerPriority(char op1, char op2)   {
@@ -20,7 +21,7 @@ bool hasLowerPriority(char op1, char op2)   {
 }
  
 stack < char > operators;
-stack < int > operands;
+stack < float > operands;
  
 // perform the operation 'op' on the two operands on top of the stack
 void operation(char op) {
@@ -41,48 +42,42 @@ void operation(char op) {
 int main()  {
     char exp[1000], *p;
     int len;
- 
-    while(true) {
-        printf("\nEnter an expression (. to exit):\n");
-        scanf("%[^\n]%*c", exp);
-        if(exp[0] == '.') break;
- 
-        len = strlen(exp);
-        if(len == 0) { getchar(); continue; }
-        exp[len] = ' '; exp[len + 1] = ')'; exp[len + 2] = '\0';
-        error = false;
-        operators.push('(');
- 
-        p = strtok(exp, " ");
-        while(p && !error)    {
-            if(isdigit(p[0]))
-                operands.push(atoi(p));
-            else switch(p[0])    {
-                case '(' :  operators.push('('); break;
-                case ')' :  while (!operators.empty() && !error && operators.top() != '(') {
-				operation(operators.top()); operators.pop();
-			    }
-			    if (!operators.empty())
-				operators.pop();
-			    else
-				error = true;
-			    break;
-                default  :  while(!operators.empty() && !error && hasLowerPriority(operators.top(), p[0])) {
-                                operation(operators.top()); operators.pop();
-                            }
-                            operators.push(p[0]);
-            }
-            p = strtok(NULL, " ");
+    cin>>len;
+    char  str[50]= {' '} ;
+    str[0]= '(';
+    for ( int i =1;i<=len ; i++)
+        cin>>str[i];
+    str[len+1]= ')';  
+
+    // Code will begin from here    
+    error = false;
+    int i =0;
+    while(i<len+2 && !error)    {
+        if(isdigit(str[i]))
+            operands.push(atoi((str+i)));
+        else switch(str[i])    {
+            case '(' :  operators.push('(');
+                         break;
+                        while (!operators.empty() && !error && operators.top() != '(') {
+			             operation(operators.top()); operators.pop();
+		                  }
+		                if (!operators.empty())
+            			operators.pop();
+            		    else
+            			error = true;
+		                break;
+            default  :  while(!operators.empty() && !error && hasLowerPriority(operators.top(), str[i])) {
+                            operation(operators.top()); operators.pop();
+                        }
+                        operators.push(str[i]);
         }
-        if(error || !operators.empty() || operands.size() != 1) {
-            printf("ERROR\n");
-            while(!operands.empty())
-                operands.pop();
-            while(!operators.empty())
-                operators.pop();
-        } else    {
-            printf("%d\n", operands.top()); operands.pop();
-        }
+        i++;
     }
+    if(error || !operators.empty() || operands.size() != 1) {
+        printf("Malformed expression\n");
+        
+    } else    {
+        printf("%f\n", operands.top()); operands.pop();
+    }    
     return 0;
 }
