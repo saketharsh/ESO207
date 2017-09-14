@@ -1,7 +1,11 @@
-#include <iostream>
-using namespace std;
-#include <stack>
+#include <bits/stdc++.h>
+#include <cmath>
 #include <iomanip>
+
+
+using namespace std;
+
+
 int preference(char a)
 {
     switch(a)
@@ -11,49 +15,85 @@ int preference(char a)
         case '*': return 3; break;
         case '/': return 4; break;
         case '%': return 4; break;
-        case 'u': return 5;break;
+        case 'h': return 5;break;
         default : return 0;
     }
 }
 
+int  isChar(string s)
+{
+	if(s.size() >1 ) return false;
+
+	switch (s[0]) {
+		case '+': return 1;
+		case '-': return 1;
+		case '*': return 2;
+		case '/': return 3;
+		case '(': return 4;
+		case ')': return 4;
+		case '%': return 3;
+		default: return false;
+	}
+}
+
+
+float solve(float op1, float op2, char ch)  
+{
+	switch(ch)
+	{
+		case '+': return (op1+op2); break;
+		case '-': return (op2-op1); break;
+		case '*': return (op1*op2); break;
+		case '/': return (op2/op1); break;
+		case '%': return fmod(op2,op1); break;
+		default: return 0;
+	}
+}
+
+int evaluate();
+
 int main() {
-    int t;
-    cin>>t;
+	evaluate();
+    
+	return 0;
+}
+
+
+int evaluate () {
+
+	int len;
+    cin>>len;
     stack <float> operands;
-    stack <char> oprator; 
-    char p; int lcount=0, rcount =0; int currintindex=-10, j=0, previndex, currcharindex=-20, prevcharindex;
+    stack <char> operators; 
+    char p; int LeftCount=-1, rightCount =-1;
+     int currintindex=-7, j=0;
+     int previndex, currcharindex=-8, prevcharindex;
     char prevchar, currchar='$';
-    for(int i=0; i<t ; i++)
+
+    for(int i=0; i<len ; i++)
     {
     	string d;
-	    cin>>d;
-	    if(d[0]>='0'&&d[0]<='9') //integer, so operands.
+	    cin>>d; // Taking the input
+	    if(!isChar(d)) 
 	    {
 	        previndex = currintindex; currintindex=i; 
-	        if(previndex==currintindex-1) {cout<<"Malformed expression"; return 0;}
-	        int l=d.length(), j=0, num=0;
-	        while(j<l)
-	        {
-	            num = num*10;
-	            num=num + d[j]-48;
-	            j++;
+	        if(previndex == currintindex-1) {
+	        	cout<<"Malformed expression"; return 0;
 	        }
+	        float num = stoi(d);
 	        operands.push(num); 
-	        //operands input taken.
 	    }
-	    else //character, not integer
+	    else 
 	    {
-	        p=d[0];//input of operands done, now p contains
-	                     //symbol only
+	        p=d[0];
 	        prevcharindex = currcharindex; currcharindex=i; 
 	        prevchar=currchar; currchar=p;
-	        if(prevchar=='$'&&p=='-') p='u';
-	        //cout<<prevcharindex<<" "<<currcharindex<<endl;
+	        if(prevchar=='$'&&p=='-') p='h';
 	        if(prevcharindex==currcharindex-1) 
-	        {//cout<<"inside this shit";
+	        {
 	            if(prevchar=='(')
 	            {
-	                if (currchar=='-') p='u';
+	                if (currchar=='-') p='h';
 	                else {
 	                	if(currchar!='(') 
 	                	{
@@ -65,10 +105,9 @@ int main() {
 	            {
 	                if(prevchar=='-') 
 	                {
-	                    oprator.pop();p='+';
+	                    operators.pop();p='+';
 	                }
-	                else if(prevchar!=')') p='u';
-	                //else if(prevchar=='+') {cout<<"Malformed expression"; return 0;}
+	                else if(prevchar!=')') p='h';
 	            }
 	            else if(prevchar!=')')
 	            {
@@ -76,64 +115,49 @@ int main() {
 	            	{cout<<"Malformed expression"; return 0;}
 	            }
 	        }
-	        if(oprator.empty()) 
+	        if(operators.empty()) 
 	        {
-	        	if(p=='(') lcount++;
-	        	if(p==')') rcount++;
-	        	oprator.push(p);
+	        	if(p=='(') LeftCount++;
+	        	if(p==')') rightCount++;
+	        	operators.push(p);
 	        }
-	        else if( !oprator.empty()&&preference(p)>preference(oprator.top()) )
+	        else if( !operators.empty()&&preference(p)>preference(operators.top()) )
 		    {
-		        oprator.push(p);
+		        operators.push(p);
 		    }
-	        else if(p=='(') {oprator.push('('); lcount++;} 
+	        else if(p=='(') {operators.push('('); LeftCount++;} 
 		    else if (p==')') 
-	        {rcount++; if(rcount>lcount) {cout<<"Malformed expression"; return 0;}
-	            while(oprator.top()!='(')
+	        {rightCount++; if(rightCount>LeftCount) {cout<<"Malformed expression"; return 0;}
+	            while(operators.top()!='(')
 	            {
-	                if(oprator.top()!='u')
+	                if(operators.top()!='h')
 	                {float a=operands.top();
 	                operands.pop();
 	                float b=operands.top();
 	                operands.pop();
-	                switch(oprator.top())
-	                {
-	                    case '+': operands.push(a+b); break;
-	                    case '-': operands.push(b-a); break;
-	                    case '*': operands.push(a*b); break;
-	                    case '/': operands.push(b/a); break;
-	                    case '%': operands.push((int)b%(int)a); break;
-	                    default: break;
-	                }
+	                float ans = solve(a, b, operators.top());
+	                operands.push(ans);
 	                }
 	                else {float a = operands.top(); operands.pop(); operands.push(-1.0*a);}
-	                oprator.pop();
+	                operators.pop();
 	            }
-	            if(oprator.top()=='(') oprator.pop();
+	            	operators.pop();
 	        }
 	        
-	        else if((p=='+'||p=='-'||p=='*'||p=='/'||p=='u'||p=='%') && !oprator.empty())  
+	        else if((p=='+'||p=='-'||p=='*'||p=='/'||p=='h'||p=='%') && !operators.empty())  
 	        {
-		        while(!oprator.empty() && preference(p)<=preference(oprator.top()) && oprator.top()!='(')
+		        while(!operators.empty() && preference(p)<=preference(operators.top()) && operators.top()!='(')
 		        {
-                    if(oprator.top()!='u')
+                    if(operators.top()!='h')
 		            {
 		                float a=operands.top();
 		                operands.pop();
 	                    float b=operands.top();
 	                    operands.pop();
-	                    switch(oprator.top())
-	                    {//the operator on the top of the stack is evaluated using
-                        //the operandss on the top of the operands stack and the result is pushed back on to the operands stack.
-	                        case '+': operands.push(a+b); break;
-	                        case '-': operands.push(b-a); break;
-	                        case '*': operands.push(a*b); break;
-	                        case '/': operands.push(b/a); break;
-	                        case '%': operands.push((int)b%(int)a); break;
-	                        default: break;
-	                    }//This process is repeated until either (a) the current operator is higher in precedence than the one
-                        //on the top of the operator stack, or, (b) the operator stack has '(' on its top, or 
-                        //(c) the operator stack is empty.
+	                    float ans = solve(a, b, operators.top());
+	                	operands.push(ans);
+	                   
+	                   
 		            }
 		            else 
 		            {  
@@ -141,36 +165,32 @@ int main() {
 		                operands.pop(); 
 		                operands.push(-1.0*a);
 		            }
-	                oprator.pop();
+	                operators.pop();
 		        }
-		        //if(oprator.top()=='(') oprator.pop();
-		        oprator.push(p);
+		        operators.push(p);
 	        }
 	    }
     }
-    if(rcount!=lcount) {cout<<"Malformed expression"; return 0;}
-    while(!oprator.empty())
-    {//cout<<" "<< "step" <<" ";
-    //cout<<endl<<oprator.top();
-        if(oprator.top()!='u')
-        {//cout<<"oout";
+    if(rightCount!=LeftCount) 
+    	{cout<<"Malformed expression"; return 0;
+	}
+    while(!operators.empty())
+    {
+        if(operators.top()!='h')
+        {
         float a=operands.top();
         operands.pop();
          float b=operands.top();
          operands.pop();
-         switch(oprator.top())
-	      {
-	        case '+': operands.push(a+b); break;
-            case '-': operands.push(b-a); break;
-            case '*': operands.push(a*b); break;
-            case '/': operands.push(b/a); break;
-            case '%': operands.push((int)b%(int)a); break;
-            default: break;
-          }  
+         float ans = solve(a, b, operators.top());
+	                operands.push(ans);
         }
-        else {float a = operands.top(); operands.pop(); operands.push(-a);}
-        oprator.pop();
+        else {float a = operands.top(); operands.pop(); operands.push(-1.00*a);}
+        operators.pop();
     }
     cout<<fixed<<setprecision(6)<<operands.top();
-	return 0;
+    return 0;
+
 }
+
+
