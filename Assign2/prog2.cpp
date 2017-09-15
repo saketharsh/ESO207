@@ -1,12 +1,29 @@
 #include <bits/stdc++.h>
 #include <cmath>
-
+#include <iomanip>
+ 
+ 
 using namespace std;
-
+ 
+ 
+int preference(char a)
+{
+    switch(a)
+    {
+        case '+': return 1; break;
+        case '-': return 1; break;
+        case '*': return 3; break;
+        case '/': return 4; break;
+        case '%': return 4; break;
+        case 'h': return 5;break;
+        default : return 0;
+    }
+}
+ 
 int  isChar(string s)
 {
 	if(s.size() >1 ) return false;
-
+ 
 	switch (s[0]) {
 		case '+': return 1;
 		case '-': return 1;
@@ -18,155 +35,174 @@ int  isChar(string s)
 		default: return false;
 	}
 }
-
-float solve(float op1, float op2, char ch)  // Solve Function 
+ 
+ 
+float solve(float op1, float op2, char ch)  
 {
 	switch(ch)
 	{
-		case '+': return (op1+op2);
-		case '-': return (op1-op2);
-		case '*': return (op1*op2);
-		case '/': return (op1/op2);
-		case '%': return (fmod(op1,op2));
+		case '+': return (op1+op2); break;
+		case '-': return (op2-op1); break;
+		case '*': return (op1*op2); break;
+		case '/': return (op2/op1); break;
+		case '%': return fmod(op2,op1); break;
+		default: return 0;
 	}
 }
-
-int preference( char ch)   {        // Preference Order of different operators 
-	switch(ch) {
-		case '+': return 1;
-		case '-': return 1;
-		case '*': return 2;
-		case '/': return 3;
-		case '%': return 3;
-		case '(': return -1;
-	}
+ 
+int evaluate();
+ 
+int main() {
+	evaluate();
+    
+	return 0;
 }
-
-float flag =1.0;
-bool error = false ; // Assumed expression is true initially
-
-
-void checkMalformed ( vector < string> s) {
-	int opbrace=0;
-	int closebrac=0;
-	for ( int i=0; i <s.size()-1; i ++) {
-		if (isChar(s[i]) && isChar([i-1])) {
-			
-		}
+ 
+ 
+int evaluate () {
+ 
+	int len;
+    cin>>len;
+    stack <float> operands;
+ 
+    stack <char> operators; 
+ 
+    char p; int LeftCount=-1, rightCount =-1;
+ 
+     int currintindex=-7, j=0;
+ 
+     int previndex, currcharindex=-8, prevcharindex;
+ 
+    char prevchar, currchar='$';
+ 
+ 
+    for(int i=0; i<len ; i++)
+    {
+    	string d;
+	    cin>>d; // Taking the input
+	    if(!isChar(d)) 
+	    {
+	        previndex = currintindex; currintindex=i; 
+ 
+	        if(previndex == currintindex-1) {
+	        	cout<<"Malformed expression"; return -1;
+	        }
+	        
+	        float num = stoi(d);
+	        
+	        operands.push(num); 
+	    }
+ 
+	    else 
+	    
+	    {
+	        p=d[0];
+	    
+	        prevcharindex = currcharindex; currcharindex=i; 
+	    
+	        prevchar=currchar; currchar=p;
+	        if(prevchar=='$'&&p=='-') p='h';
+	        if(prevcharindex==currcharindex-1) 
+	        {
+	            if(prevchar=='(')
+	            {
+	                if (currchar=='-') p='h';
+	                else {
+	                	if(currchar!='(') 
+	                	{
+	                		cout<<"Malformed expression"; return -1;
+	                	}
+	                }	
+	            }
+	            else if(p=='-') 
+	            {
+	                if(prevchar=='-') 
+	                {
+	                    operators.pop();p='+';
+	                }
+	                else if(prevchar!=')') p='h';
+	            }
+	            else if(prevchar!=')')
+	            {
+	            	if(currchar=='*'||currchar=='/'||currchar=='%'||currchar=='+')
+	            	{cout<<"Malformed expression"; return 0;}
+	            }
+	        }
+	        if(operators.empty()) 
+	        {
+	        	if(p=='(') LeftCount++;
+	        	if(p==')') rightCount++;
+	        	operators.push(p);
+	        }
+	        else if( !operators.empty()&&preference(p)>preference(operators.top()) )
+		    {
+		        operators.push(p);
+		    }
+	        else if(p=='(') {operators.push('('); LeftCount++;} 
+		    else if (p==')') 
+	        {rightCount++; if(rightCount>LeftCount) {cout<<"Malformed expression"; return -1;}
+	            while(operators.top()!='(')
+	            {
+	                if(operators.top()!='h')
+	                {float a=operands.top();
+	                operands.pop();
+	                float b=operands.top();
+	                operands.pop();
+	                float ans = solve(a, b, operators.top());
+	                operands.push(ans);
+	                }
+	                else {float a = operands.top(); operands.pop(); operands.push(-1.0*a);}
+	                operators.pop();
+	            }
+	            	operators.pop();
+	        }
+	        
+	        else if( (p=='+'||p=='-'||p=='*'||p=='/'||p=='h'||p=='%')  &&  !operators.empty())  
+	        {
+		        while(!operators.empty() && preference(p)<=preference(operators.top()) && operators.top()!='(')
+		        {
+                    if(operators.top()!='h')
+		            {
+		                float a=operands.top();
+		                operands.pop();
+	                    float b=operands.top();
+	                    operands.pop();
+	                    float ans = solve(a, b, operators.top());
+	                	operands.push(ans);
+	                   
+	                   
+		            }
+		            else 
+		            {  
+		                float a = operands.top(); 
+		                operands.pop(); 
+		                operands.push(-1.0*a);
+		            }
+	                operators.pop();
+		        }
+		        operators.push(p);
+	        }
+	    }
+    }
+    if(rightCount!=LeftCount) 
+    	{cout<<"Malformed expression"; return -1;
 	}
 	
-}
-
-
-
-// Main evaluator function 
-void evaluate(vector <string >  s)
-{
-	int len = s.size();
-
-	stack< char > operators;
-	stack< float > operandssss;
-
-	int i =0;
-	while(i < len && !error )
-	{
-		if(isChar(s[i]))
-		{
-			if (isChar(s[i+1])) {
-				checkMalformed(s[i][0], s[i+1][0]);
-				if (error) {
-					cout<<"E5";
-					break;
-				}
-			}
-			
-			// I need to write here classic case to handle negative elements  and mal-formed expressions 
-
-			if(s[i][0]=='(') operators.push('(');
-			else if(s[i][0]==')')
-			{
-				while(operators.top()!='(' && !error)
-				{
-					if (operandssss.size()<2 ) {
-						cout<<"E4";
-						error =1 ;
-						break;
-					}
-					char ch=operators.top(); operators.pop();
-					float op2=operandssss.top(); operandssss.pop();
-					float op1=operandssss.top(); operandssss.pop();
-					operandssss.push(solve(op1,op2,ch));
-				}
-				operators.pop(); // To pop out opening braces 
-			}
-			else
-			{
-				if ( s[i][0]== '-' && isChar(s[i-1] ) )	 {  // Not to insert minus sign when it is with the number 
-					i=i+1;
-					continue;
-				}			
-				while(!operators.empty() &&   preference(s[i][0]) <= preference(operators.top())  && !error)
-				{
-					if (operandssss.size()<2 ) {
-						cout<<"E3";
-						error =1 ;
-						break;
-					}
-					char ch=operators.top(); operators.pop();
-					float op2=operandssss.top(); operandssss.pop();
-					float op1=operandssss.top(); operandssss.pop();
-
-					operandssss.push(solve(op1,op2,ch));
-				}
-
-				operators.push(s[i][0]);
-			}
-		}
-		else
-		{
-			if (i >=1 && !isChar(s[i-1])) {
-				
-				cout<<"E2";
-				error =1;
-				break;
-			}
-			float op=stoi(s[i]);
-			operandssss.push(flag*op*1.00);
-			flag =1.0;
-		}
-			i++;
-	}
-
-
-	while(!operators.empty() && !error )
-	{
-		if (operandssss.size()<2) 
-		{
-			cout<<"E1";
-			error =1 ;
-			continue;
-		}
-		char ch=operators.top(); operators.pop();
-		float op2=operandssss.top(); operandssss.pop();
-		float op1=operandssss.top(); operandssss.pop();
-		operandssss.push((float)solve(op1,op2,ch));
-	}
-	if (error) {
-		cout<<"Malformed expression";
-	}
-	else {
-		cout<<operandssss.top();
-	}
-}
-
-int main() {
-	int len ;
-	cin>>len;
-	vector <string> s(len);	
-	for ( int i =0;i<len ; i ++) {
-		cin>>s[i];	
-	}
-	checkMalformed(s);
-	evaluate(s);
-	return 0;
+    while(!operators.empty())
+    {
+        if(operators.top()!='h')
+        {
+        float a=operands.top();
+        operands.pop();
+         float b=operands.top();
+         operands.pop();
+         float ans = solve(a, b, operators.top());
+	                operands.push(ans);
+        }
+        else {float a = operands.top(); operands.pop(); operands.push(-1.00*a);}
+        operators.pop();
+    }
+    cout<<fixed<<setprecision(6)<<operands.top();
+    return 0;
+ 
 }
