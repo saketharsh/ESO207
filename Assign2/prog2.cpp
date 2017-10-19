@@ -79,7 +79,7 @@ int evaluate () {
     for(int i=0; i<len ; i++)
     {
     	string d;
-	    cin>>d; // Taking the input
+	    cin>>d; 
 	    if(!isChar(d)) 
 	    {
 	        previndex = currintindex; currintindex=i; 
