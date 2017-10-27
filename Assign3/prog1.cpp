@@ -10,18 +10,20 @@ stack < int > topsort;
 
 vector < vector < int > > adjlist(1001);
 vector < vector < int > > revadjlist(1001);
+vector < set < int >  > finaladj(1002); // adjacency list of strongly connected components 
 
 
-int compmin = 50000; // To compute minimum in the DFS component
+int CompNum =1; // To compute minimum in the DFS component
 
 void DFS( int  x ) {
-	visited[x] = -1;
-	if (x <=compmin) {
-		compmin = x;
-	}
+	visited[x] =CompNum ;
+	
 	for ( int i =0; i < revadjlist[x].size(); i++) {
 		if (visited[revadjlist[x][i]] == -2) {
 			DFS(revadjlist[x][i]);
+		} else {
+			if (visited[revadjlist[x][i]]!=CompNum)
+				finaladj[visited[revadjlist[x][i]]].insert(CompNum);
 		}		
 	}
 	return ;	
@@ -30,16 +32,14 @@ void DFS( int  x ) {
 
 int TopArray[1002] = {0};
 int curval = 0;
-// This will give me topological Ordering in the stack that i will use in for SCC
 void TopSort(int x) {
 	visited[x] = 1;
 	for ( int i =0; i < adjlist[x].size(); i++) {
 		if (!visited[adjlist[x][i]]) {
 			TopSort(adjlist[x][i]);
-
 		}
 	}
-		TopArray[curval++]= x;
+	TopArray[curval++]= x;
 
 
 	return;
@@ -50,7 +50,6 @@ int main () {
 	cin>>num;
 	int vertex;
 
-	//  Making adjacency List for  graph and its reverse  at once 
 	for ( int i =0; i < num; i++) {
 		cin>>vertex;
 		while(vertex !=-1) {
@@ -60,46 +59,60 @@ int main () {
 		}
 	}
 
-	// To do Topological Sort so that we can find connected Components 
 	for ( int i =0; i < num ; i ++) {
 		if (!visited[i]) {
 			TopSort(i);
 		}
 	}
-	// for ( int i =0; i <num ; i++) 
-	// 	cout<<TopArray[i];
-
-	// Transfer topsort order to array 
+	
 	vector < int > starray(num) ;
 	for ( int i =num-1; i >= 0; i--) {		
 		starray[num -1 - i]= TopArray[i];
 	}
-
-	// for ( int i =0; i< starray.size(); i++) 
-	// 	cout<<starray[i]<<endl;
-
-
-	vector < vector < int > > finaladj(1002); // adjacency list of strongly connected components 
-
-
 	for ( int i =0; i < 10001; i++)
-		visited[i] = -2 ;
-	int lastcompmin = 4500;
+		visited[i] = -2 ; // Unvisited value
 
 	for ( int i =starray.size()-1; i>=0; i--) {
 		if (visited[starray[i]] == -2) {
 			DFS(starray[i]);
-			for ( int j =0; j < 1002; j++) {
-				if (visited[j] ==-1)
-					visited[j] = min(min(compmin,lastcompmin+1), starray[i]);
-			}
-			lastcompmin = compmin;
-			compmin = 50000;
+			CompNum++;
+		}
+	}
+	
+	
+	int OrderID=0;
+	int orderid[1002], copyVisited[1002];
+	for ( int i =0; i <1002; i++) 
+		copyVisited[i] = visited[i];
 
+	for ( int i =0; i < num ; i++) {
+		if (i != visited[i] && visited[i] != -2) {
+			int val = visited[i];
+			for (int j =0; j < num ; j++) {
+				if (visited[j] == val ) {
+					visited[j]= -2;
+					orderid[j]= OrderID;
+				}
+			}
+			OrderID++;
 		}
 	}
 
-	for ( int i =0; i < num ; i++) 
-		cout <<visited[i]<<endl;
+
+
+	
+	
+
+	cout<<OrderID+1<<endl;
+	
+	set<int>::iterator it;
+	for ( int i =0; i < OrderID+1; i++) {
+		it = finaladj[revCompMap[i]].begin();
+		while(it!= finaladj[revCompMap[i]].end()) {
+			cout<<compMap[*it]<<" ";
+			it++;
+		}
+		cout<<-1<<endl;
+	} 	
 	return 0;
 }
