@@ -71,13 +71,17 @@ int main () {
 			CompNum++;
 		}
 	}
+	// for (int i =0; i < num ; i++)
+	// 	cout<<visited[i]<<" ";
+	// cout<<endl;
+
 	int OrderID=0;
 	int orderid[1002], copyVisited[1002];
 	for ( int i =0; i <1002; i++) 
 		copyVisited[i] = visited[i];
 
 	for ( int i =0; i < num ; i++) {
-		if (i != visited[i] && visited[i] != -2) {
+		if (  visited[i] != -2) {
 			int val = visited[i];
 			for (int j =0; j < num ; j++) {
 				if (visited[j] == val ) {
@@ -88,6 +92,10 @@ int main () {
 			OrderID++;
 		}
 	}
+	// for ( int i =0; i <num; i++) {
+	// 	cout<<orderid[i]<<" ";
+	// }
+	cout<<endl;
 	vector < set < int > > Compadj(OrderID);
 
 	for ( int i =0; i < num; i++) {
