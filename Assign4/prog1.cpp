@@ -10,12 +10,12 @@ struct node {
 	long long int weight;
 };
 
-vector < vector < node > >  adjlist(10002);
+vector < vector < node > >  adjlist(100002);
 long long int num, source,D, C1, C2, D1, D2, W1, W2, W3;
-long long int distances[10002];
-long long int  verticesheap[10002];
+long long int distances[100002];
+long long int  verticesheap[100002];
 long long int size;
-long long int position[10002];
+long long int position[100002];
 
 
 void Update_Heap( long long int i) {
