@@ -74,49 +74,65 @@ void BuildMaxHeap( ) {
 int main()  
 {
 	long long int deg;
-	node temp_node;
-	cin >>num>>source>>D>>C1>>C2>>D1>>D2>>W1>>W2>>W3;
+	node temp_node, temp_node2;
+	int tcases;
+    cin >> tcases;
+    while (tcases--) {
 
-	for ( long long int i=1; i <= num; i++) {
-		deg = (i*C2 + i*i*D2 )%D;
-		for ( long long int j =1; j <=deg; j++) {
-			temp_node.vertex = ( i*C1 +j*D1)%num;
-			temp_node.vertex+=1;
-			temp_node.weight = (i*W1 + j*W2)%W3;
-			adjlist[i].push_back(temp_node);
+        int nodes;
+        int edges;
+        cin >> nodes>> edges;
+
+    	for(int a1 = 0; a1 < edges; a1++) {
+	        int x;
+	        int y;
+	        int r;
+	        cin >> x >> y >> r;
+	        temp_node.vertex = x;
+	        temp_node2.vertex= y;
+	        temp_node.weight = r;
+	        temp_node2.weight = r;
+	        adjlist[x].push_back(temp_node2);
+	        adjlist[y].push_back(temp_node);
+        }
+        
+        int source;
+        cin >> source;
+
+		for ( int i =0; i <= num; i++ )
+			distances[i] = -1*1000000000;
+
+
+		distances[source] = 0;
+		for ( long long int i =1; i <=num ; i++) {
+			verticesheap[i] = i;
+			position[i] = i;
 		}
-	}	
-
-	for ( int i =0; i <= num; i++ )
-		distances[i] = -1*1000000000;
 
 
-	distances[source] = 0;
-	for ( long long int i =1; i <=num ; i++) {
-		verticesheap[i] = i;
-		position[i] = i;
-	}
+		size= num;
+		BuildMaxHeap();
 
-
-	size= num;
-	BuildMaxHeap();
-
-	
-	while (size>0) {
-		long long int vert= Extract_Max();
-		for ( long long int  i =0; i < adjlist[vert].size(); i++) {
-			if (distances[adjlist[vert][i].vertex] < distances[vert] - adjlist[vert][i].weight) {
-				distances[adjlist[vert][i].vertex] = distances[vert] - adjlist[vert][i].weight;
-				Update_Heap( position[adjlist[vert][i].vertex]);
+		
+		while (size>0) {
+			long long int vert= Extract_Max();
+			for ( long long int  i =0; i < adjlist[vert].size(); i++) {
+				if (distances[adjlist[vert][i].vertex] < distances[vert] - adjlist[vert][i].weight) {
+					distances[adjlist[vert][i].vertex] = distances[vert] - adjlist[vert][i].weight;
+					Update_Heap( position[adjlist[vert][i].vertex]);
+				}
 			}
 		}
-	}
-	for ( long long int i =1 ; i <=num ; i++)  {
-		if (distances[i] == -1000000000)
-			cout<<i<<" "<<-1<<endl;
-		else 
-			cout<<i<<" "<<-1*distances[i]<<endl;
-	}
+		for ( long long int i =1 ; i <=num ; i++)  {
+			if (i==source) 
+				continue;
+			if (distances[i] == -1000000000)
+				cout<<i<<" "<<-1<<endl;
+			else 
+				cout<<i<<" "<<-1*distances[i]<<endl;
+		}
+    }
+    
 
 
 	return 0;
